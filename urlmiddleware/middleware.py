@@ -1,5 +1,4 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.datastructures import SortedDict
 from django.utils import lru_cache
 
 from urlmiddleware.base import MiddlewareResolver404
