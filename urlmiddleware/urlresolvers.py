@@ -3,7 +3,7 @@ from threading import local
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import RegexURLResolver, RegexURLPattern, ResolverMatch
 from django.utils.encoding import smart_str
-from django.utils.functional import memoize
+from django.utils import lru_cache
 
 from urlmiddleware.base import MiddlewareResolver404
 from urlmiddleware.util.collections import OrderedSet
@@ -44,7 +44,7 @@ class MiddlewareRegexURLResolver(RegexURLResolver):
             for pattern in self.url_patterns:
                 try:
                     sub_match = pattern.resolve(new_path)
-                except MiddlewareResolver404, e:
+                except MiddlewareResolver404 as e:
                     sub_tried = e.args[0].get('tried')
                     if sub_tried is not None:
                         tried.extend([[pattern] + t for t in sub_tried])
@@ -66,12 +66,12 @@ class MiddlewareRegexURLResolver(RegexURLResolver):
         return list(found)
 
 
+@lru_cache.lru_cache(maxsize=None)
 def get_resolver(urlconf):
     if urlconf is None:
         from django.conf import settings
         urlconf = settings.ROOT_URLCONF
     return MiddlewareRegexURLResolver(r'^/', urlconf)
-get_resolver = memoize(get_resolver, _resolver_cache, 1)
 
 
 def resolve(path, urlconf=None):
