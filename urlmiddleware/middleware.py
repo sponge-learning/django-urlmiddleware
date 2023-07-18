@@ -1,16 +1,13 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.datastructures import SortedDict
-from django.utils.functional import memoize
+from django.utils import lru_cache
 
 from urlmiddleware.base import MiddlewareResolver404
 from urlmiddleware.urlresolvers import resolve
 
-_match_cache = SortedDict()
 
-
+@lru_cache.lru_cache(maxsize=None)
 def matched_middleware(path):
     return resolve(path)
-matched_middleware = memoize(matched_middleware, _match_cache, 1)
 
 
 class URLMiddleware(object):

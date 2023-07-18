@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.2.3
+--------
+
+- Add support for Django 1.9
+- Used 'lru_cache' instead of 'memoizing'
+
 
 v0.2.1
 --------
