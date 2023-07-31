@@ -12,7 +12,8 @@ def mpatterns(prefix, *args):
             t = middleware(prefix=prefix, *t)
         elif isinstance(t, MiddlewareRegexURLPattern):
             if not callable(t.callback):
-                t.callback = prefix + '.' + t.callback
+                if prefix:
+                    t.callback = prefix + '.' + t.callback
         pattern_list.append(t)
     return pattern_list
 
