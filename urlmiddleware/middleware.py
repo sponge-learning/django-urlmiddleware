@@ -1,5 +1,5 @@
-from django.core.exceptions import ImproperlyConfigured
 from django.utils import lru_cache
+from django.utils.module_loading import import_string
 
 from urlmiddleware.base import MiddlewareResolver404
 from urlmiddleware.urlresolvers import resolve
@@ -17,62 +17,42 @@ class URLMiddleware(object):
     classes.
     """
 
-    def get_matched_middleware(self, path, middleware_method=None):
+    def __init__(self, get_response):
+        self.get_response = get_response
+        # One-time configuration and initialization.
 
-        middleware_instances = []
+    def get_matched_middleware(self, path):
 
         try:
             middleware_matches = matched_middleware(path)
         except MiddlewareResolver404:
             return []
 
-        for middleware_class in middleware_matches:
+        return middleware_matches
 
-            if not callable(middleware_class):
-                raise ImproperlyConfigured("%s is expected to be a callable that accepts no arguements." % middleware_class)
-
-            mw_instance = middleware_class()
-            if middleware_method and not hasattr(mw_instance, middleware_method):
-                continue
-            middleware_instances.append(mw_instance)
-
-        return middleware_instances
-
-    def process_request(self, request):
-        matched_middleware = self.get_matched_middleware(request.path,
-            'process_request')
-        for middleware in matched_middleware:
-            response = middleware.process_request(request)
-            if response:
-                return response
+    def __call__(self, request):
+        matched_middleware = self.get_matched_middleware(request.path)
+        chain = self.get_response
+        for middleware_path in matched_middleware:
+            middleware = import_string(middleware_path)
+            chain = middleware(chain)
+        response = chain(request)
+        return response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        matched_middleware = self.get_matched_middleware(request.path,
-            'process_view')
+        matched_middleware = self.get_matched_middleware(request.path)
         for middleware in matched_middleware:
-            response = middleware.process_view(request, view_func, view_args,
-                view_kwargs)
-            if response:
-                return response
-
-    def process_template_response(self, request, response):
-        matched_middleware = self.get_matched_middleware(request.path,
-            'process_template_response')
-        for middleware in matched_middleware:
-            response = middleware.process_template_response(request, response)
-        return response
-
-    def process_response(self, request, response):
-        matched_middleware = self.get_matched_middleware(request.path,
-            'process_response')
-        for middleware in matched_middleware:
-            response = middleware.process_response(request, response)
-        return response
+            if hasattr(middleware, 'process_view'):
+                response = middleware.process_view(request, view_func, view_args, view_kwargs)
+                if response:
+                    return response
+        return None
 
     def process_exception(self, request, exception):
-        matched_middleware = self.get_matched_middleware(request.path,
-            'process_exception')
+        matched_middleware = self.get_matched_middleware(request.path)
         for middleware in matched_middleware:
-            response = middleware.process_exception(request, exception)
-            if response:
-                return response
+            if hasattr(middleware, 'process_exception'):
+                response = middleware.process_exception(request, exception)
+                if response:
+                    return response
+        return None
