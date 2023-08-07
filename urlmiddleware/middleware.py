@@ -42,10 +42,13 @@ class URLMiddleware(object):
     def process_view(self, request, view_func, view_args, view_kwargs):
         matched_middleware = self.get_matched_middleware(request.path)
         for middleware in matched_middleware:
+            middleware = import_string(middleware)
             if hasattr(middleware, 'process_view'):
-                response = middleware.process_view(request, view_func, view_args, view_kwargs)
+                instance = middleware(request)
+                response = instance.process_view(request, view_func, view_args, view_kwargs)
                 if response:
                     return response
+
         return None
 
     def process_exception(self, request, exception):
