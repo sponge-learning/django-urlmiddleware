@@ -54,8 +54,10 @@ class URLMiddleware(object):
     def process_exception(self, request, exception):
         matched_middleware = self.get_matched_middleware(request.path)
         for middleware in matched_middleware:
+            middleware = import_string(middleware)
             if hasattr(middleware, 'process_exception'):
-                response = middleware.process_exception(request, exception)
+                instance = middleware(request)
+                response = instance.process_exception(request, exception)
                 if response:
                     return response
         return None
