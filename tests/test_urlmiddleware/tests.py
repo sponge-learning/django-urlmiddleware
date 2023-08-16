@@ -14,7 +14,7 @@ class ResolverTestCase(TestCase):
 
         middleware = resolve('/')
 
-        self.assertEquals([NoOpMiddleWare, ], middleware)
+        self.assertEqual([NoOpMiddleWare, ], middleware)
 
     def test_resolve_multiple(self):
 
@@ -23,7 +23,7 @@ class ResolverTestCase(TestCase):
 
         middleware = resolve('/sub/')
 
-        self.assertEquals([NoOpMiddleWare, NoOpMiddleWare2, ], middleware)
+        self.assertEqual([NoOpMiddleWare, NoOpMiddleWare2, ], middleware)
 
     def test_dotted_middleware_path(self):
 
@@ -32,7 +32,7 @@ class ResolverTestCase(TestCase):
 
         middleware = resolve('/dotted/')
 
-        self.assertEquals([NoOpMiddleWare3, NoOpMiddleWare4, ], middleware)
+        self.assertEqual([NoOpMiddleWare3, NoOpMiddleWare4, ], middleware)
 
     def test_duplicated_middleware(self):
 
@@ -41,7 +41,7 @@ class ResolverTestCase(TestCase):
 
         middleware = resolve('/dupe/')
 
-        self.assertEquals([NoOpMiddleWare5, ], middleware)
+        self.assertEqual([NoOpMiddleWare5, ], middleware)
 
     def test_dotted_sub_path(self):
 
@@ -50,7 +50,7 @@ class ResolverTestCase(TestCase):
 
         middleware = resolve('/dotted2/')
 
-        self.assertEquals([NoOpMiddleWare6, ], middleware)
+        self.assertEqual([NoOpMiddleWare6, ], middleware)
 
     def test_no_middleware_Action(self):
 
@@ -75,7 +75,7 @@ class MiddlewareTestCase(TestCase):
         m = URLMiddleware()
         middleware = m.get_matched_middleware("/")
 
-        self.assertEquals(middleware[0].__class__, NoOpMiddleWare)
+        self.assertEqual(middleware[0].__class__, NoOpMiddleWare)
 
     def test_no_middleware_url(self):
 
@@ -84,7 +84,7 @@ class MiddlewareTestCase(TestCase):
         m = URLMiddleware()
         middleware = m.get_matched_middleware("/no_middleware/")
 
-        self.assertEquals(middleware, [])
+        self.assertEqual(middleware, [])
 
 
 class MatchingCacheTestCase(TestCase):
@@ -94,12 +94,12 @@ class MatchingCacheTestCase(TestCase):
         from urlmiddleware.middleware import _match_cache, URLMiddleware
         from test_urlmiddleware.middleware import NoOpMiddleWare
 
-        keys = _match_cache.keys()[:] + [('/',), ]
+        keys = list(_match_cache.keys())[:] + [('/',), ]
 
         m = URLMiddleware()
         m.get_matched_middleware('/')
 
-        self.assertEqual(_match_cache.keys(), keys)
+        self.assertEqual(list(_match_cache.keys()), keys)
         self.assertEqual(_match_cache[('/',)], [NoOpMiddleWare, ])
 
 
@@ -127,7 +127,7 @@ class MiddlewareHooksTestCase(TestCase):
 
             m = URLMiddleware()
 
-            self.assertEquals(m.process_request(request), None)
+            self.assertEqual(m.process_request(request), None)
 
     def test_process_request(self):
 
@@ -149,7 +149,7 @@ class MiddlewareHooksTestCase(TestCase):
             m = URLMiddleware()
 
             expected_content = "New Process Request Response"
-            self.assertEquals(m.process_request(request).content, expected_content)
+            self.assertEqual(m.process_request(request).content, expected_content)
 
     def test_process_view_no_op(self):
 
@@ -169,7 +169,7 @@ class MiddlewareHooksTestCase(TestCase):
 
             m = URLMiddleware()
 
-            self.assertEquals(m.process_view(request, lambda x: None, [], {}), None)
+            self.assertEqual(m.process_view(request, lambda x: None, [], {}), None)
 
     def test_process_view(self):
 
@@ -191,7 +191,7 @@ class MiddlewareHooksTestCase(TestCase):
             m = URLMiddleware()
 
             expected_content = "New Process View Response"
-            self.assertEquals(m.process_view(request, lambda x: None, [], {}).content, expected_content)
+            self.assertEqual(m.process_view(request, lambda x: None, [], {}).content, expected_content)
 
     def test_process_template_resnpose_no_op(self):
 
@@ -214,7 +214,7 @@ class MiddlewareHooksTestCase(TestCase):
 
             m = URLMiddleware()
 
-            self.assertEquals(m.process_template_response(request, template_response), template_response)
+            self.assertEqual(m.process_template_response(request, template_response), template_response)
 
     def test_process_template_resnpose(self):
 
@@ -238,7 +238,7 @@ class MiddlewareHooksTestCase(TestCase):
 
             m = URLMiddleware()
 
-            self.assertEquals(m.process_template_response(request, template_response), new)
+            self.assertEqual(m.process_template_response(request, template_response), new)
 
     def test_process_response_no_op(self):
 
@@ -261,7 +261,7 @@ class MiddlewareHooksTestCase(TestCase):
 
             m = URLMiddleware()
 
-            self.assertEquals(m.process_response(request, response), response)
+            self.assertEqual(m.process_response(request, response), response)
 
     def test_process_response(self):
 
@@ -285,7 +285,7 @@ class MiddlewareHooksTestCase(TestCase):
 
             m = URLMiddleware()
             expected_content = "New Response"
-            self.assertEquals(m.process_response(request, response).content, expected_content)
+            self.assertEqual(m.process_response(request, response).content, expected_content)
 
     def test_process_exception_no_op(self):
 
@@ -306,7 +306,7 @@ class MiddlewareHooksTestCase(TestCase):
             m = URLMiddleware()
             e = Exception("Uh oh.")
 
-            self.assertEquals(m.process_exception(request, e), None)
+            self.assertEqual(m.process_exception(request, e), None)
 
     def test_process_exception(self):
 
@@ -329,7 +329,7 @@ class MiddlewareHooksTestCase(TestCase):
             e = Exception("Uh oh.")
 
             expected_content = "New Response"
-            self.assertEquals(m.process_exception(request, e).content, expected_content)
+            self.assertEqual(m.process_exception(request, e).content, expected_content)
 
 
 class MiddlewareRegexURLResolverTestCase(TestCase):
@@ -358,7 +358,7 @@ class IncludeMiddleware(TestCase):
         from urlmiddleware.urlresolvers import resolve
 
         with self.assertRaises(MiddlewareResolver404):
-            print resolve('/include_test/')
+            print(resolve('/include_test/'))
 
     def test_include_views(self):
 
@@ -366,7 +366,7 @@ class IncludeMiddleware(TestCase):
         from urlmiddleware.urlresolvers import resolve
 
         with self.assertRaises(ImproperlyConfigured):
-            print resolve('/include_views_test/')
+            print(resolve('/include_views_test/'))
 
     def test_include_get(self):
 

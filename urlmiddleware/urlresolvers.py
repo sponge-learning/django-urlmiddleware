@@ -52,9 +52,9 @@ class MiddlewareRegexURLResolver(RegexURLResolver):
                         tried.append([pattern])
                 else:
                     if sub_match:
-                        sub_match_dict = dict([(smart_str(k), v) for k, v in match.groupdict().items()])
+                        sub_match_dict = dict([(smart_str(k), v) for k, v in list(match.groupdict().items())])
                         sub_match_dict.update(self.default_kwargs)
-                        for k, v in sub_match.kwargs.iteritems():
+                        for k, v in sub_match.kwargs.items():
                             sub_match_dict[smart_str(k)] = v
                         middleware = ResolverMatch(sub_match.func, sub_match.args, sub_match_dict, sub_match.url_name, self.app_name or sub_match.app_name, [self.namespace] + sub_match.namespaces)
                         found.add(middleware.func)
