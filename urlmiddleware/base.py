@@ -1,4 +1,4 @@
-from django.core.urlresolvers import Resolver404
+from django.urls import Resolver404
 
 
 class MiddlewareResolver404(Resolver404):
