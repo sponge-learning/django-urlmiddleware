@@ -1,4 +1,5 @@
 from django.core.exceptions import ImproperlyConfigured
+from django.urls.resolvers import RegexPattern
 
 from urlmiddleware.urlresolvers import MiddlewareRegexURLResolver, MiddlewareRegexURLPattern
 
@@ -22,11 +23,11 @@ def middleware(regex, view, kwargs=None, name=None, prefix=''):
     if isinstance(view, (list, tuple)):
         # For include(...) processing.
         urlconf_module, app_name, namespace = view
-        return MiddlewareRegexURLResolver(regex, urlconf_module, kwargs, app_name=app_name, namespace=namespace)
+        return MiddlewareRegexURLResolver(RegexPattern(regex), urlconf_module, kwargs, app_name=app_name, namespace=namespace)
     else:
         if isinstance(view, str):
             if not view:
                 raise ImproperlyConfigured('Empty URL pattern view name not permitted (for pattern %r)' % regex)
             if prefix:
                 view = prefix + '.' + view
-        return MiddlewareRegexURLPattern(regex, view, kwargs, name)
+        return MiddlewareRegexURLPattern(RegexPattern(regex), view, kwargs, name)

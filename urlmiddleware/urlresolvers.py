@@ -2,6 +2,7 @@ from threading import local
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import URLResolver as RegexURLResolver, URLPattern as RegexURLPattern, ResolverMatch
+from django.urls.resolvers import RegexPattern
 from django.utils.encoding import smart_str
 from django.utils import lru_cache
 
@@ -38,7 +39,7 @@ class MiddlewareRegexURLResolver(RegexURLResolver):
     def resolve(self, path):
         tried = []
         found = OrderedSet()
-        match = self.regex.search(path)
+        match = self.pattern.regex.search(path)
         if match:
             new_path = path[match.end():]
             for pattern in self.url_patterns:
@@ -71,7 +72,7 @@ def get_resolver(urlconf):
     if urlconf is None:
         from django.conf import settings
         urlconf = settings.ROOT_URLCONF
-    return MiddlewareRegexURLResolver(r'^/', urlconf)
+    return MiddlewareRegexURLResolver(RegexPattern(r'^/'), urlconf)
 
 
 def resolve(path, urlconf=None):
