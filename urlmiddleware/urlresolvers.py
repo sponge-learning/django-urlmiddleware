@@ -1,10 +1,10 @@
+import functools
 from threading import local
 
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import URLResolver as RegexURLResolver, URLPattern as RegexURLPattern, ResolverMatch
 from django.urls.resolvers import RegexPattern
 from django.utils.encoding import smart_str
-from django.utils import lru_cache
 
 from urlmiddleware.base import MiddlewareResolver404
 from urlmiddleware.util.collections import OrderedSet
@@ -67,7 +67,7 @@ class MiddlewareRegexURLResolver(RegexURLResolver):
         return list(found)
 
 
-@lru_cache.lru_cache(maxsize=None)
+@functools.lru_cache(maxsize=None)
 def get_resolver(urlconf):
     if urlconf is None:
         from django.conf import settings

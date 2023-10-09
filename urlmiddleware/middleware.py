@@ -1,11 +1,11 @@
-from django.utils import lru_cache
+import functools
 from django.utils.module_loading import import_string
 
 from urlmiddleware.base import MiddlewareResolver404
 from urlmiddleware.urlresolvers import resolve
 
 
-@lru_cache.lru_cache(maxsize=None)
+@functools.lru_cache(maxsize=None)
 def matched_middleware(path):
     return resolve(path)
 
