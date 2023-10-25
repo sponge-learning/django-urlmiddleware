@@ -120,12 +120,12 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.10',
         'Topic :: Internet :: WWW/HTTP',
     ],
     zip_safe=False,
     setup_requires=[
         'versiontools >= 1.6',
-        'Django >= 1.11, <2.1',
+        'Django >= 2.2, <4.0',
     ],
 )
